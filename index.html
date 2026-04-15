@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Reservas Frade</title>
+  <style>
+    :root{
+      --bg:#eef3fa; --card:#fff; --primary:#0b2341; --primary2:#123b70; --accent:#1d5fbf;
+      --soft:#eaf2ff; --text:#162235; --muted:#667085; --border:#dbe5f0; --danger:#b42318;
+      --success:#067647; --warning:#b54708;
+      --shadow:0 18px 50px rgba(11,35,65,.10); --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(29,95,191,.10), transparent 28%),
+        linear-gradient(180deg, #f7fbff 0%, var(--bg) 100%);
+      color:var(--text)
+    }
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(135deg,#081a32 0%,var(--primary) 52%,var(--primary2) 100%);
+      color:#fff;
+      padding:22px 24px 30px;
+      box-shadow:0 24px 80px rgba(11,35,65,.30)
+    }
+    .hero::before{
+      content:"FI";
+      position:absolute;
+      inset:auto -2% -30px auto;
+      font-size:250px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.02em;
+      color:rgba(255,255,255,.045);
+      pointer-events:none;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 85% 35%, rgba(255,255,255,.07), transparent 22%),
+        radial-gradient(circle at 75% 80%, rgba(255,255,255,.05), transparent 18%);
+      pointer-events:none;
+    }
+    .hero-wrap,.wrap{max-width:1240px;margin:0 auto;position:relative;z-index:1}
+    .hero-topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px
+    }
+    .topbar-left{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap
+    }
+    .mini-logo{
+      width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#ff9b24 0%, #f07400 100%);
+      color:#fff;font-weight:900;font-size:15px;box-shadow:0 8px 22px rgba(0,0,0,.18)
+    }
+    .brand-chip{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+      background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);font-size:13px;letter-spacing:.08em
+    }
+    .hero-connection{
+      display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;padding:8px 10px;backdrop-filter:blur(8px)
+    }
+    .hero-connection input{
+      min-width:260px;
+      padding:10px 12px;
+      background:rgba(255,255,255,.96);color:var(--text)
+    }
+    .hero-connection button{
+      padding:10px 12px;
+      border-radius:14px;
+    }
+    h1{margin:12px 0 0;font-size:44px;line-height:1.05}
+    .hero-grid{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start;margin-top:18px
+    }
+    .hero-left{max-width:760px}
+    .hero-right{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:12px}
+    .mini{
+      padding:16px;border-radius:18px;background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)
+    }
+    .mini .label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#c8daf5}
+    .mini .value{font-size:19px;font-weight:700;margin-top:8px}
+    .wrap{padding:24px}
+    .card{
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.7)
+    }
+    .panel{padding:22px;margin-bottom:18px}
+    .panel h3{margin:0 0 16px;font-size:24px}
+    .sub{color:var(--muted);font-size:14px;margin-top:-6px;margin-bottom:14px}
+    .grid-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:18px}
+    .stat{padding:22px}
+    .stat .small{color:var(--muted);font-size:13px;margin-bottom:10px}
+    .stat .big{font-size:30px;font-weight:800}
+    .toolbar{
+      display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px
+    }
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:none;border-radius:16px;cursor:pointer;padding:12px 16px;font-weight:700;
+      transition:.18s transform,.18s background,.18s opacity
+    }
+    button:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-secondary{background:#fff;color:var(--text);border:1px solid var(--border)}
+    .btn-danger{background:#fff5f5;color:var(--danger);border:1px solid #fecaca}
+    .status{
+      padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:16px;
+      color:var(--muted);box-shadow:var(--shadow);min-width:280px
+    }
+    label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+    input,select,textarea{
+      width:100%;border:1px solid var(--border);border-radius:14px;padding:12px 14px;
+      font:inherit;background:#fff;color:var(--text)
+    }
+    textarea{min-height:92px;resize:vertical}
+    .form-grid,.filters{display:grid;gap:14px}
+    .form-grid{grid-template-columns:repeat(2,1fr)}
+    .filters{grid-template-columns:1.2fr 1fr 1fr 1fr auto}
+    .span-2{grid-column:span 2}
+    .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .tab{
+      padding:12px 16px;border-radius:16px;background:#fff;border:1px solid var(--border);
+      cursor:pointer;font-weight:700
+    }
+    .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .hidden{display:none}
+    .body-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}
+    .podium{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:end}
+    .podium-card{border-radius:24px;padding:1px}
+    .gold{background:linear-gradient(180deg,#f5cf67,#db9c00)}
+    .silver{background:linear-gradient(180deg,#dadde3,#98a2b3)}
+    .bronze{background:linear-gradient(180deg,#f0b78d,#b85a1b)}
+    .podium-inner{
+      background:#fff;border-radius:23px;padding:22px;text-align:center;min-height:190px;
+      display:flex;flex-direction:column;justify-content:flex-end
+    }
+    .podium-inner.tall{min-height:260px}.podium-inner.medium{min-height:220px}
+    .emoji{font-size:42px;margin-bottom:6px}.place{font-size:13px;color:var(--muted)}
+    .name{font-size:22px;font-weight:800;margin-top:10px}.score{font-size:42px;font-weight:900;margin-top:10px}
+    .progress{margin-top:16px;background:#f8fafc;border-radius:18px;padding:18px;border:1px solid var(--border)}
+    .bar{margin-top:10px;height:14px;border-radius:999px;background:#dbe5f0;overflow:hidden}
+    .bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent))}
+    .list{display:flex;flex-direction:column;gap:12px}
+    .mini-res{padding:16px;border-radius:18px;background:#f8fafc;border:1px solid var(--border)}
+    .mini-res .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--soft);color:var(--primary2)}
+    .badge.success{background:#ecfdf3;color:var(--success)}
+    .badge.warning{background:#fff7ed;color:var(--warning)}
+    .ranking-list .row,.history-row{
+      display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px;
+      border-radius:18px;border:1px solid var(--border);background:#fff;margin-bottom:10px
+    }
+    .pos{
+      width:54px;height:54px;border-radius:16px;background:#f2f4f7;display:flex;
+      align-items:center;justify-content:center;font-weight:800
+    }
+    .row-left{display:flex;align-items:center;gap:14px}
+    .muted{color:var(--muted);font-size:13px}
+    .reservation-card{
+      padding:18px;border-radius:20px;border:1px solid var(--border);background:#fff;margin-bottom:12px
+    }
+    .reservation-top{
+      display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px
+    }
+    .fields{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 20px}
+    .fields div{font-size:14px}
+    .action-row{display:flex;gap:8px;flex-wrap:wrap}
+    .compact-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .note{
+      padding:16px;border-radius:18px;background:#f8fafc;border:1px solid var(--border);
+      margin-bottom:12px;line-height:1.5;color:#475467
+    }
+
+    /* top ranking strip */
+    .top-ranking-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;margin-bottom:18px}
+    .mini-ranking .row{
+      display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #eef2f7
+    }
+    .mini-ranking .row:last-child{border-bottom:none}
+    .meta-box{
+      display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end
+    }
+
+    /* tv mode */
+    .tv-mode body{background:#07182d}
+    .tv-only{display:none}
+    body.tv-active .hero,
+    body.tv-active .wrap{display:none}
+    body.tv-active .tv-only{
+      display:block;
+      min-height:100vh;
+      background:linear-gradient(180deg,#07182d 0%,#0b2341 100%);
+      color:#fff;
+      padding:40px;
+      position:relative;
+      overflow:hidden;
+    }
+    body.tv-active .tv-only::before{
+      content:"FRADE";
+      position:absolute; right:-20px; bottom:-10px;
+      font-size:280px; font-weight:900; color:rgba(255,255,255,.05);
+    }
+    .tv-inner{max-width:1400px;margin:0 auto;position:relative;z-index:1}
+    .tv-title{font-size:40px;font-weight:900;margin-bottom:20px}
+    .tv-list .tv-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:18px 22px;border-radius:22px;margin-bottom:12px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)
+    }
+    .tv-name{font-size:34px;font-weight:800}
+    .tv-score{font-size:34px;font-weight:900}
+    .tv-sub{font-size:18px;color:#d9e5f7;margin-bottom:20px}
+
+    @media (max-width:1180px){
+      .grid-stats{grid-template-columns:repeat(2,1fr)}
+      .hero-grid,.body-grid,.two-col,.top-ranking-grid{grid-template-columns:1fr}
+      .hero-right{grid-template-columns:repeat(4,1fr)}
+      .filters,.form-grid{grid-template-columns:1fr}
+      .span-2{grid-column:auto}
+      .hero-connection input{min-width:220px}
+      h1{font-size:36px}
+    }
+    @media (max-width:760px){
+      .grid-stats,.hero-right{grid-template-columns:1fr 1fr}
+      .podium,.fields{grid-template-columns:1fr}
+      .hero-connection{width:100%}
+      .hero-connection input{min-width:unset;width:100%}
+      .tv-name,.tv-score{font-size:24px}
+      .tv-title{font-size:28px}
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-wrap">
+      <div class="hero-topbar">
+        <div class="brand-chip">🏆 PAINEL DE RESERVAS FRADE</div>
+        <div class="hero-connection">
+          <input id="remoteUrl" placeholder="URL">
+          <button class="btn-secondary" onclick="salvarUrlManual()">Salvar</button>
+          <button class="btn-secondary" onclick="conectarBase()">Conectar</button>
+          <button class="btn-secondary" onclick="ativarModoTV()">TV</button>
+        </div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-left">
+          <h1>Ranking Individual de Reservas</h1>
+        </div>
+        <div class="hero-right">
+          <div class="mini"><div class="label">Período</div><div class="value" id="heroPeriodo">Mês atual</div></div>
+          <div class="mini"><div class="label">Líder</div><div class="value" id="heroLider">—</div></div>
+          <div class="mini"><div class="label">Reservas</div><div class="value" id="heroTotal">0</div></div>
+          <div class="mini"><div class="label">Meta do Mês</div><div class="value" id="heroMeta">Definir</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="toolbar">
+      <div class="btns">
+        <button class="btn-primary" onclick="toggleForm()">+ Nova reserva</button>
+        <button class="btn-secondary" onclick="copiarRanking()">Copiar ranking parcial</button>
+      </div>
+      <div class="status" id="syncStatus">Modo local ativo</div>
+    </div>
+
+    <section class="top-ranking-grid">
+      <div class="card panel">
+        <h3>Ranking no Topo</h3>
+        <div id="miniRankingTopo" class="mini-ranking"></div>
+      </div>
+
+      <div class="card panel">
+        <h3>Meta do Mês</h3>
+        <div class="meta-box">
+          <div>
+            <label>Meta manual do escritório</label>
+            <input id="metaMensal" type="number" placeholder="Defina a meta do mês" oninput="salvarMeta(); render()">
+          </div>
+          <div class="badge" id="metaBadge">Livre</div>
+        </div>
+        <div class="sub" style="margin-top:12px;margin-bottom:0">Meta mínima individual: 2 reservas por corretor.</div>
+      </div>
+    </section>
+
+    <section class="card panel" id="formPanel">
+      <h3>Cadastro de Nova Reserva</h3>
+      <div class="form-grid">
+        <div><label>Data</label><input id="date" type="date"></div>
+        <div><label>Cliente</label><input id="client" placeholder="Nome do cliente"></div>
+        <div><label>CPF</label><input id="cpf" placeholder="Somente números ou formatado"></div>
+        <div><label>Telefone</label><input id="phone" placeholder="+55 83 ..."></div>
+        <div><label>Corretor</label><input id="broker" placeholder="Nome do corretor"></div>
+        <div><label>Empreendimento</label><input id="empreendimento" placeholder="Nome do empreendimento"></div>
+        <div><label>Criativo</label><input id="creative" placeholder="Origem / criativo"></div>
+        <div><label>Status do imóvel</label><input id="statusImovel" placeholder="Ex.: Em construção"></div>
+        <div><label>Construtora</label><input id="construtora" placeholder="Nome da construtora"></div>
+        <div><label>Negociação da comissão</label>
+          <select id="commissionNegotiation"><option>Não</option><option>Sim</option></select>
+        </div>
+        <div><label>Valor da comissão</label><input id="commissionValue" type="number" placeholder="7500"></div>
+        <div><label>Contrato na Caixa</label>
+          <select id="signedAtStart"><option value="nao">Não</option><option value="sim">Sim</option></select>
+        </div>
+        <div class="span-2"><label>Observação</label><textarea id="observacao" placeholder="Observações gerais"></textarea></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="salvarReserva()">Salvar reserva</button>
+        <button class="btn-secondary" onclick="limparFormulario()">Limpar</button>
+      </div>
+    </section>
+
+    <div class="grid-stats">
+      <div class="card stat"><div class="small">Reservas no período</div><div class="big" id="statTotal">0</div></div>
+      <div class="card stat"><div class="small">Corretores ativos</div><div class="big" id="statCorretores">0</div></div>
+      <div class="card stat"><div class="small">Comissão estimada</div><div class="big" id="statComissao">R$ 0</div></div>
+      <div class="card stat"><div class="small">Média por corretor</div><div class="big" id="statMedia">0</div></div>
+      <div class="card stat"><div class="small">Construtora líder</div><div class="big" id="statConstrutora" style="font-size:24px">—</div></div>
+    </div>
+
+    <section class="card panel">
+      <h3>Filtros do Painel</h3>
+      <div class="filters">
+        <div><label>Busca</label><input id="busca" placeholder="Cliente, corretor, empreendimento..." oninput="render()"></div>
+        <div><label>Período</label>
+          <select id="filtroPeriodo" onchange="render()">
+            <option value="mes_atual">Mês atual</option>
+            <option value="hoje">Hoje</option>
+            <option value="mes_escolhido">Mês escolhido</option>
+            <option value="total">Geral</option>
+          </select>
+        </div>
+        <div><label>Corretor</label><select id="filtroCorretor" onchange="render()"><option value="todos">Todos</option></select></div>
+        <div><label>Mês de referência</label><select id="filtroMes" onchange="render()"></select></div>
+        <div><label>Visualização</label><div class="badge">Completa</div></div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <div class="tab active" onclick="trocarTab('dashboard', this)">Dashboard</div>
+      <div class="tab" onclick="trocarTab('ranking', this)">Ranking</div>
+      <div class="tab" onclick="trocarTab('reservas', this)">Reservas</div>
+      <div class="tab" onclick="trocarTab('historico', this)">Histórico</div>
+    </div>
+
+    <section id="tab-dashboard">
+      <div class="body-grid">
+        <div class="card panel">
+          <h3>Pódio de Reservas</h3>
+          <div class="podium">
+            <div class="podium-card silver"><div class="podium-inner medium"><div class="emoji">🥈</div><div class="place">2º lugar</div><div class="name" id="podio2Nome">—</div><div class="score" id="podio2Valor">0</div><div class="muted">reservas</div></div></div>
+            <div class="podium-card gold"><div class="podium-inner tall"><div class="emoji">🥇</div><div class="place">1º lugar</div><div class="name" id="podio1Nome">—</div><div class="score" id="podio1Valor">0</div><div class="muted">reservas</div></div></div>
+            <div class="podium-card bronze"><div class="podium-inner"><div class="emoji">🥉</div><div class="place">3º lugar</div><div class="name" id="podio3Nome">—</div><div class="score" id="podio3Valor">0</div><div class="muted">reservas</div></div></div>
+          </div>
+          <div class="progress">
+            <div style="display:flex;justify-content:space-between;gap:12px">
+              <strong>Progresso da Meta do Escritório</strong><span id="metaTexto">0 / livre</span>
+            </div>
+            <div class="bar"><div id="metaBar"></div></div>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h3>Últimas Reservas Lançadas</h3>
+          <div class="list" id="ultimasReservas"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-ranking" class="hidden">
+      <div class="card panel">
+        <h3>Ranking Completo</h3>
+        <div class="ranking-list" id="rankingCompleto"></div>
+      </div>
+    </section>
+
+    <section id="tab-reservas" class="hidden">
+      <div class="card panel">
+        <h3>Reservas Cadastradas</h3>
+        <div id="listaReservas"></div>
+      </div>
+    </section>
+
+    <section id="tab-historico" class="hidden">
+      <div class="two-col">
+        <div class="card panel">
+          <h3>Histórico Mensal</h3>
+          <div id="historicoMensal"></div>
+        </div>
+        <div class="card panel">
+          <h3>Direção do Projeto</h3>
+          <div class="note"><strong>Meta individual mínima</strong><br>Cada corretor precisa alcançar no mínimo 2 reservas no mês para bater a meta mínima individual.</div>
+          <div class="note"><strong>Contratos assinados</strong><br>Cada reserva pode ser marcada manualmente como contrato assinado na Caixa.</div>
+          <div class="note"><strong>URL salva</strong><br>A URL de conexão fica salva no navegador para não precisar preencher toda vez.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="tv-only" id="tvOnly">
+    <div class="tv-inner">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px">
+        <div class="tv-title">Ranking Individual de Reservas</div>
+      </div>
+      <div class="tv-sub">Visual exclusivo para TV do escritório • pressione ESC para sair</div>
+      <div class="tv-list" id="tvRanking"></div>
+    </div>
+  </section>
+
+<script>
+const STORAGE_KEY = 'frade_reservas_profissional_restaurado_v1';
+const REMOTE_KEY = 'frade_reservas_remote_url_restaurado_v1';
+const META_KEY = 'frade_reservas_meta_restaurado_v1';
+const META_INDIVIDUAL_MINIMA = 2;
+let remoteEnabled = false;
+
+function uid(){
+  return 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function setStatus(msg){ document.getElementById('syncStatus').textContent = msg; }
+function salvarLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(reservas)); }
+function salvarMeta(){ localStorage.setItem(META_KEY, document.getElementById('metaMensal').value || ''); }
+function salvarUrlManual(){
+  localStorage.setItem(REMOTE_KEY, document.getElementById('remoteUrl').value.trim());
+  setStatus('URL salva neste navegador');
+}
+function normalizar(v){ return (v || '').toString().trim().toLowerCase(); }
+function moeda(v){ return Number(v || 0).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function formatDate(v){ if(!v) return '-'; return new Date(v + 'T12:00:00').toLocaleDateString('pt-BR'); }
+function formatMonth(ym){ if(!ym) return '-'; return new Date(ym + '-01T12:00:00').toLocaleDateString('pt-BR', {month:'long', year:'numeric'}); }
+function hojeISO(){ return new Date().toISOString().slice(0,10); }
+function mesAtual(){ return new Date().toISOString().slice(0,7); }
+
+const seed = [
+  {id: uid(), date:'2026-04-10', client:'Gabriel Figueiredo Ribeiro de Andrade', cpf:'10733602452', phone:'+55 83 93823045', broker:'Marco Vinicio', empreendimento:'Vila Nobre', creative:'José Américo', statusImovel:'Aguardando finalizar acabamento', construtora:'JMS', observacao:'Vila Nobre', commissionNegotiation:'Não', commissionValue:'', signed:false},
+  {id: uid(), date:'2026-04-14', client:'Maria Laiane Silva Costa', cpf:'17514907424', phone:'+55 83 99989-4993', broker:'Priscilla', empreendimento:'Bosque das Indústrias', creative:'Veio do meu insta', statusImovel:'Em construção', construtora:'Plataforma', observacao:'Esperando unidade', commissionNegotiation:'Sim', commissionValue:'7500', signed:false},
+  {id: uid(), date:'2026-04-12', client:'Cliente Exemplo 01', cpf:'00000000001', phone:'+55 83 90000-0001', broker:'Eduardo', empreendimento:'Mirante Residence', creative:'Instagram', statusImovel:'Reserva confirmada', construtora:'Tenda', observacao:'-', commissionNegotiation:'Sim', commissionValue:'6400', signed:true},
+  {id: uid(), date:'2026-04-13', client:'Cliente Exemplo 02', cpf:'00000000002', phone:'+55 83 90000-0002', broker:'Eduardo', empreendimento:'Bosque das Indústrias', creative:'Google', statusImovel:'Aguardando documentação', construtora:'Plataforma', observacao:'-', commissionNegotiation:'Não', commissionValue:'', signed:false},
+  {id: uid(), date:'2026-04-13', client:'Cliente Exemplo 03', cpf:'00000000003', phone:'+55 83 90000-0003', broker:'Eduardo', empreendimento:'Parque do Sol', creative:'Tráfego pago', statusImovel:'Reserva confirmada', construtora:'MRV', observacao:'-', commissionNegotiation:'Sim', commissionValue:'5800', signed:false},
+  {id: uid(), date:'2026-04-11', client:'Cliente Exemplo 04', cpf:'00000000004', phone:'+55 83 90000-0004', broker:'Anna', empreendimento:'Cidade Verde', creative:'Indicação', statusImovel:'Reserva confirmada', construtora:'MRV', observacao:'-', commissionNegotiation:'Não', commissionValue:'', signed:false},
+  {id: uid(), date:'2026-04-09', client:'Cliente Exemplo 06', cpf:'00000000006', phone:'+55 83 90000-0006', broker:'Priscilla', empreendimento:'Muçumagro Park', creative:'Indicação', statusImovel:'Reserva confirmada', construtora:'MRV', observacao:'-', commissionNegotiation:'Sim', commissionValue:'7000', signed:true}
+];
+
+let reservas = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || seed;
+
+function preencherFormHoje(){ document.getElementById('date').value = hojeISO(); }
+
+function preencherSelects(){
+  const brokers = [...new Set(reservas.map(r => r.broker).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const selBroker = document.getElementById('filtroCorretor');
+  const atualBroker = selBroker.value || 'todos';
+  selBroker.innerHTML = '<option value="todos">Todos</option>' + brokers.map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('');
+  selBroker.value = (brokers.includes(atualBroker) || atualBroker === 'todos') ? atualBroker : 'todos';
+
+  const months = [...new Set(reservas.map(r => (r.date || '').slice(0,7)).filter(Boolean))].sort().reverse();
+  if(!months.includes(mesAtual())) months.unshift(mesAtual());
+  const selMes = document.getElementById('filtroMes');
+  const atualMes = selMes.value || mesAtual();
+  selMes.innerHTML = months.map(m => `<option value="${m}">${esc(formatMonth(m))}</option>`).join('');
+  selMes.value = months.includes(atualMes) ? atualMes : mesAtual();
+}
+
+function filtros(){
+  return {
+    busca: document.getElementById('busca').value,
+    periodo: document.getElementById('filtroPeriodo').value,
+    broker: document.getElementById('filtroCorretor').value,
+    mes: document.getElementById('filtroMes').value,
+    meta: Number(document.getElementById('metaMensal').value || 0)
+  };
+}
+
+function reservasFiltradas(){
+  const f = filtros();
+  return reservas.filter(r => {
+    const matchBusca = [r.client, r.broker, r.empreendimento, r.creative, r.construtora, r.observacao]
+      .some(x => normalizar(x).includes(normalizar(f.busca)));
+    const matchBroker = f.broker === 'todos' || r.broker === f.broker;
+
+    let matchPeriodo = true;
+    if(f.periodo === 'hoje') matchPeriodo = r.date === hojeISO();
+    if(f.periodo === 'mes_atual') matchPeriodo = (r.date || '').slice(0,7) === mesAtual();
+    if(f.periodo === 'mes_escolhido') matchPeriodo = (r.date || '').slice(0,7) === f.mes;
+    if(f.periodo === 'total') matchPeriodo = true;
+
+    return matchBusca && matchBroker && matchPeriodo;
+  });
+}
+
+function gerarRanking(lista){
+  const mapa = {};
+  lista.forEach(r => { mapa[r.broker] = (mapa[r.broker] || 0) + 1; });
+  return Object.entries(mapa)
+    .map(([broker,total]) => ({broker,total, atingiuMinimo: total >= META_INDIVIDUAL_MINIMA}))
+    .sort((a,b) => b.total - a.total || a.broker.localeCompare(b.broker,'pt-BR'));
+}
+
+function topConstrutora(lista){
+  const mapa = {};
+  lista.forEach(r => {
+    const k = r.construtora || 'Não informado';
+    mapa[k] = (mapa[k] || 0) + 1;
+  });
+  const items = Object.entries(mapa).sort((a,b) => b[1]-a[1]);
+  return items[0] ? {name: items[0][0], total: items[0][1]} : null;
+}
+
+function toggleForm(){
+  const p = document.getElementById('formPanel');
+  p.classList.toggle('hidden');
+}
+
+function limparFormulario(){
+  ['client','cpf','phone','broker','empreendimento','creative','statusImovel','construtora','observacao','commissionValue'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('commissionNegotiation').value = 'Não';
+  document.getElementById('signedAtStart').value = 'nao';
+  document.getElementById('date').value = hojeISO();
+}
+
+async function salvarReserva(){
+  const nova = {
+    id: uid(),
+    date: document.getElementById('date').value,
+    client: document.getElementById('client').value.trim(),
+    cpf: document.getElementById('cpf').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    broker: document.getElementById('broker').value.trim(),
+    empreendimento: document.getElementById('empreendimento').value.trim(),
+    creative: document.getElementById('creative').value.trim(),
+    statusImovel: document.getElementById('statusImovel').value.trim(),
+    construtora: document.getElementById('construtora').value.trim(),
+    observacao: document.getElementById('observacao').value.trim(),
+    commissionNegotiation: document.getElementById('commissionNegotiation').value,
+    commissionValue: document.getElementById('commissionValue').value.trim(),
+    signed: document.getElementById('signedAtStart').value === 'sim'
+  };
+
+  if(!nova.date || !nova.client || !nova.broker || !nova.empreendimento){
+    alert('Preencha pelo menos: Data, Cliente, Corretor e Empreendimento.');
+    return;
+  }
+
+  reservas.unshift(nova);
+  salvarLocal();
+  preencherSelects();
+  render();
+  limparFormulario();
+
+  if(remoteEnabled){
+    const url = document.getElementById('remoteUrl').value.trim();
+    try{
+      const res = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(nova)
+      });
+      const data = await res.json();
+      setStatus(data && data.ok ? 'Reserva salva online com sucesso' : 'Reserva salva localmente; falhou no online');
+    }catch(e){
+      setStatus('Reserva salva localmente; falhou no online');
+    }
+  }else{
+    setStatus('Reserva salva no modo local');
+  }
+}
+
+async function alternarAssinada(id){
+  const item = reservas.find(r => r.id === id);
+  if(!item) return;
+  item.signed = !item.signed;
+  salvarLocal();
+  render();
+
+  if(remoteEnabled){
+    const url = document.getElementById('remoteUrl').value.trim();
+    try{
+      await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({ action:'update_signed', id:item.id, signed:item.signed })
+      });
+      setStatus('Status de assinatura atualizado');
+    }catch(e){
+      setStatus('Assinatura atualizada localmente');
+    }
+  }else{
+    setStatus('Assinatura atualizada localmente');
+  }
+}
+
+async function excluirReserva(id){
+  if(!confirm('Deseja excluir esta reserva?')) return;
+  reservas = reservas.filter(r => r.id !== id);
+  salvarLocal();
+  preencherSelects();
+  render();
+
+  if(remoteEnabled){
+    const url = document.getElementById('remoteUrl').value.trim();
+    try{
+      const res = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({action:'delete', id})
+      });
+      const data = await res.json();
+      setStatus(data && data.ok ? 'Reserva excluída online com sucesso' : 'Reserva excluída localmente; falhou no online');
+    }catch(e){
+      setStatus('Reserva excluída localmente; falhou no online');
+    }
+  }else{
+    setStatus('Reserva excluída no modo local');
+  }
+}
+
+function copiarRanking(){
+  const ranking = gerarRanking(reservasFiltradas());
+  const linhas = ranking.map((r,i) => `${i===0?'🥇':i===1?'🥈':i===2?'🥉':'•'} ${r.broker} – ${r.total}`);
+  const texto = ['🏆 Ranking Parcial de Reservas 🏆', '', ...linhas].join('\\n');
+  navigator.clipboard.writeText(texto).then(() => setStatus('Ranking copiado para divulgação no grupo'))
+    .catch(() => setStatus('Não foi possível copiar automaticamente'));
+}
+
+async function conectarBase(){
+  const url = document.getElementById('remoteUrl').value.trim();
+  if(!url){
+    alert('Cole a URL do Apps Script primeiro.');
+    return;
+  }
+  localStorage.setItem(REMOTE_KEY, url);
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+    if(Array.isArray(data)){
+      reservas = data.map(r => ({...r, signed: !!r.signed}));
+      salvarLocal();
+      remoteEnabled = true;
+      preencherSelects();
+      render();
+      setStatus('Base online conectada com sucesso');
+    }else{
+      setStatus('A URL respondeu, mas não retornou lista de reservas');
+    }
+  }catch(e){
+    setStatus('Falha ao conectar base online');
+  }
+}
+
+function ativarModoTV(){
+  document.body.classList.add('tv-active');
+  renderTV();
+}
+function sairModoTV(){
+  document.body.classList.remove('tv-active');
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    sairModoTV();
+  }
+});
+
+function trocarTab(nome, el){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['dashboard','ranking','reservas','historico'].forEach(tab => {
+    document.getElementById('tab-' + tab).classList.toggle('hidden', tab !== nome);
+  });
+}
+
+function renderTV(){
+  const ranking = gerarRanking(reservasFiltradas());
+  document.getElementById('tvRanking').innerHTML = ranking.length ? ranking.map((r,i) => `
+    <div class="tv-row">
+      <div style="display:flex;align-items:center;gap:18px">
+        <div style="font-size:34px">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'🏅'}</div>
+        <div>
+          <div class="tv-name">${esc(r.broker)}</div>
+          <div style="font-size:16px;color:#d9e5f7">${r.atingiuMinimo ? 'Meta mínima atingida' : 'Abaixo da meta mínima'}</div>
+        </div>
+      </div>
+      <div class="tv-score">${r.total}</div>
+    </div>
+  `).join('') : '<div class="tv-sub">Nenhuma reserva encontrada.</div>';
+}
+
+function render(){
+  const lista = reservasFiltradas();
+  const ranking = gerarRanking(lista);
+  const top = topConstrutora(lista);
+  const meta = filtros().meta || 0;
+  const total = lista.length;
+  const corretores = new Set(lista.map(r => r.broker)).size;
+  const media = corretores ? (total / corretores).toFixed(1).replace('.', ',') : '0';
+  const comissao = lista.reduce((acc,r) => acc + Number(r.commissionValue || 0), 0);
+  const progresso = meta ? Math.min((total / meta) * 100, 100) : 0;
+
+  document.getElementById('heroPeriodo').textContent =
+    filtros().periodo === 'mes_escolhido' ? formatMonth(filtros().mes) :
+    filtros().periodo === 'hoje' ? 'Hoje' :
+    filtros().periodo === 'total' ? 'Geral' : 'Mês atual';
+  document.getElementById('heroLider').textContent = ranking[0]?.broker || '—';
+  document.getElementById('heroTotal').textContent = total;
+  document.getElementById('heroMeta').textContent = meta || 'Definir';
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statCorretores').textContent = corretores;
+  document.getElementById('statComissao').textContent = 'R$ ' + moeda(comissao);
+  document.getElementById('statMedia').textContent = media;
+  document.getElementById('statConstrutora').textContent = top?.name || '—';
+
+  document.getElementById('podio1Nome').textContent = ranking[0]?.broker || '—';
+  document.getElementById('podio1Valor').textContent = ranking[0]?.total || 0;
+  document.getElementById('podio2Nome').textContent = ranking[1]?.broker || '—';
+  document.getElementById('podio2Valor').textContent = ranking[1]?.total || 0;
+  document.getElementById('podio3Nome').textContent = ranking[2]?.broker || '—';
+  document.getElementById('podio3Valor').textContent = ranking[2]?.total || 0;
+
+  document.getElementById('metaTexto').textContent = meta ? `${total} / ${meta}` : `${total} / livre`;
+  document.getElementById('metaBar').style.width = meta ? (progresso + '%') : '0%';
+  document.getElementById('metaBadge').textContent = meta ? `Meta: ${meta}` : 'Livre';
+  document.getElementById('metaBadge').className = 'badge' + (meta ? ' success' : '');
+
+  document.getElementById('miniRankingTopo').innerHTML = ranking.length ? ranking.slice(0,6).map((r,i) => `
+    <div class="row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="pos" style="width:44px;height:44px">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+        <div>
+          <div><strong>${esc(r.broker)}</strong></div>
+          <div class="muted">${r.atingiuMinimo ? 'Meta mínima atingida' : 'Meta mínima pendente'}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:24px;font-weight:900">${r.total}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="muted">Nenhuma reserva encontrada neste período.</div>';
+
+  const ultimas = [...lista].sort((a,b) => (b.date || '').localeCompare(a.date || '')).slice(0,8);
+  document.getElementById('ultimasReservas').innerHTML = ultimas.length ? ultimas.map(r => `
+    <div class="mini-res">
+      <div class="top">
+        <div>
+          <div><strong>${esc(r.client)}</strong></div>
+          <div class="muted">${esc(r.broker)} • ${esc(formatDate(r.date))}</div>
+        </div>
+        <span class="badge ${r.signed ? 'success' : 'warning'}">${r.signed ? 'Assinada' : 'Pendente'}</span>
+      </div>
+      <div>${esc(r.empreendimento || '-')}</div>
+      <div class="muted" style="margin-top:4px">Criativo: ${esc(r.creative || '-')}</div>
+    </div>
+  `).join('') : '<div class="muted">Nenhuma reserva encontrada.</div>';
+
+  document.getElementById('rankingCompleto').innerHTML = ranking.length ? ranking.map((r,i) => `
+    <div class="row">
+      <div class="row-left">
+        <div class="pos">${i===0?'🏆':i+1}</div>
+        <div>
+          <div><strong>${esc(r.broker)}</strong></div>
+          <div class="muted">${r.atingiuMinimo ? 'Meta mínima atingida' : 'Abaixo da meta mínima de 2'}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:34px;font-weight:900">${r.total}</div>
+        <div class="muted">reservas</div>
+      </div>
+    </div>
+  `).join('') : '<div class="muted">Nenhuma reserva encontrada neste filtro.</div>';
+
+  document.getElementById('listaReservas').innerHTML = lista.length ? [...lista].sort((a,b) => (b.date || '').localeCompare(a.date || '')).map(r => `
+    <div class="reservation-card">
+      <div class="reservation-top">
+        <div class="compact-actions">
+          <span class="badge">${esc(r.broker)}</span>
+          <span class="badge">${esc(formatDate(r.date))}</span>
+          <span class="badge ${r.signed ? 'success' : 'warning'}">${r.signed ? 'Assinada' : 'Pendente'}</span>
+        </div>
+        <div class="action-row">
+          <button class="btn-secondary" onclick="alternarAssinada('${esc(r.id)}')">${r.signed ? 'Desmarcar Assinada' : 'Marcar Assinada'}</button>
+          <button class="btn-danger" onclick="excluirReserva('${esc(r.id)}')">Excluir</button>
+        </div>
+      </div>
+      <div class="fields">
+        <div><strong>Cliente:</strong> ${esc(r.client || '-')}</div>
+        <div><strong>CPF:</strong> ${esc(r.cpf || '-')}</div>
+        <div><strong>Telefone:</strong> ${esc(r.phone || '-')}</div>
+        <div><strong>Empreendimento:</strong> ${esc(r.empreendimento || '-')}</div>
+        <div><strong>Criativo:</strong> ${esc(r.creative || '-')}</div>
+        <div><strong>Construtora:</strong> ${esc(r.construtora || '-')}</div>
+        <div><strong>Status:</strong> ${esc(r.statusImovel || '-')}</div>
+        <div><strong>Negociação:</strong> ${esc(r.commissionNegotiation || '-')}</div>
+        <div><strong>Comissão:</strong> ${r.commissionValue ? 'R$ ' + esc(moeda(r.commissionValue)) : '-'}</div>
+        <div><strong>Observação:</strong> ${esc(r.observacao || '-')}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="muted">Nenhuma reserva cadastrada.</div>';
+
+  const hist = {};
+  reservas.forEach(r => {
+    const m = (r.date || '').slice(0,7);
+    if(m) hist[m] = (hist[m] || 0) + 1;
+  });
+  const histRows = Object.entries(hist).sort((a,b) => b[0].localeCompare(a[0]));
+  document.getElementById('historicoMensal').innerHTML = histRows.length ? histRows.map(([m,t]) => `
+    <div class="history-row">
+      <div><strong>${esc(formatMonth(m))}</strong><div class="muted">Ranking final do mês</div></div>
+      <div style="text-align:right"><div style="font-size:28px;font-weight:900">${t}</div><div class="muted">reservas</div></div>
+    </div>
+  `).join('') : '<div class="muted">Sem histórico ainda.</div>';
+
+  renderTV();
+}
+
+(function init(){
+  const savedUrl = localStorage.getItem(REMOTE_KEY);
+  const savedMeta = localStorage.getItem(META_KEY);
+  if(savedUrl){
+    document.getElementById('remoteUrl').value = savedUrl;
+  }
+  if(savedMeta !== null){
+    document.getElementById('metaMensal').value = savedMeta;
+  }
+  preencherFormHoje();
+  preencherSelects();
+  render();
+})();
+</script>
+</body>
+</html>
