@@ -289,7 +289,7 @@
         <div class="meta-box">
           <div>
             <label>Meta manual do escritório</label>
-            <input id="metaMensal" type="number" placeholder="Defina a meta do mês" oninput="salvarMeta(); render()">
+            <input id="metaMensal" type="number" placeholder="Defina a meta do mês" oninput="alterarMetaCompartilhada()">
           </div>
           <div class="badge" id="metaBadge">Livre</div>
         </div>
@@ -405,7 +405,7 @@
           <h3>Direção do Projeto</h3>
           <div class="note"><strong>Meta individual mínima</strong><br>Cada corretor precisa alcançar no mínimo 2 reservas no mês para bater a meta mínima individual.</div>
           <div class="note"><strong>Contratos assinados</strong><br>Cada reserva pode ser marcada manualmente como contrato assinado na Caixa.</div>
-          <div class="note"><strong>Base online automática</strong><br>O painel salva no Firebase e também envia automaticamente para a planilha, sem precisar preencher URL.</div>
+          <div class="note"><strong>Base online automática</strong><br>O painel salva no Firebase, envia automaticamente para a planilha e compartilha a meta para todos os acessos.</div>
         </div>
       </div>
     </section>
@@ -423,9 +423,8 @@
 
 <script>
 const STORAGE_KEY = 'frade_reservas_profissional_restaurado_v2';
-const META_KEY = 'frade_reservas_meta_restaurado_v2';
 const META_INDIVIDUAL_MINIMA = 2;
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxck18m7e_IY8yKHkallpRfWfpwgHZOderqU5_orXq0yghP1PKG-0k819K_vvuCR2auqQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyCYtCKY-e6cG5hg76QGuPHcRsiunwSu3C_Gx7eGiJVaYoWlSOKKK2JU_0t2XC_4Pqfhg/exec";
 let reservas = [];
 
 function uid(){
@@ -436,7 +435,6 @@ function esc(v){
 }
 function setStatus(msg){ document.getElementById('syncStatus').textContent = msg; }
 function salvarLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(reservas)); }
-function salvarMeta(){ localStorage.setItem(META_KEY, document.getElementById('metaMensal').value || ''); }
 function normalizar(v){ return (v || '').toString().trim().toLowerCase(); }
 function moeda(v){ return Number(v || 0).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 function formatDate(v){ if(!v) return '-'; return new Date(v + 'T12:00:00').toLocaleDateString('pt-BR'); }
@@ -517,6 +515,19 @@ function limparFormulario(){
   document.getElementById('signedAtStart').value = 'nao';
   document.getElementById('date').value = hojeISO();
 }
+
+async function alterarMetaCompartilhada(){
+  const valor = Number(document.getElementById('metaMensal').value || 0);
+  if(typeof window.salvarMetaFirestore !== 'function') return;
+  try{
+    await window.salvarMetaFirestore(valor);
+    setStatus('Meta atualizada para todos');
+  }catch(e){
+    console.error(e);
+    setStatus('Erro ao atualizar meta');
+  }
+}
+
 
 function copiarRanking(){
   const ranking = gerarRanking(reservasFiltradas());
@@ -692,10 +703,6 @@ function render(){
 }
 
 (function init(){
-  const savedMeta = localStorage.getItem(META_KEY);
-  if(savedMeta !== null){
-    document.getElementById('metaMensal').value = savedMeta;
-  }
   preencherFormHoje();
   render();
 })();
@@ -712,7 +719,9 @@ function render(){
     doc,
     updateDoc,
     query,
-    orderBy
+    orderBy,
+    setDoc,
+    getDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -726,6 +735,37 @@ function render(){
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+
+  const META_DOC_REF = doc(db, "painel_config", "meta_global");
+
+  window.salvarMetaFirestore = async function(valor){
+    await setDoc(META_DOC_REF, {
+      valor: Number(valor || 0),
+      atualizadoEm: new Date().toISOString()
+    }, { merge: true });
+  };
+
+  async function carregarMetaInicial(){
+    try{
+      const snap = await getDoc(META_DOC_REF);
+      if(snap.exists()){
+        const data = snap.data() || {};
+        document.getElementById('metaMensal').value = Number(data.valor || 0) || '';
+      }
+    }catch(e){
+      console.error("Erro ao carregar meta:", e);
+    }
+  };
+
+  onSnapshot(META_DOC_REF, (snap) => {
+    const data = snap.exists() ? (snap.data() || {}) : {};
+    const valor = Number(data.valor || 0);
+    const campo = document.getElementById('metaMensal');
+    if(campo){
+      campo.value = valor || '';
+      render();
+    }
+  });
 
   window.salvarReserva = async function(){
     const nova = {
@@ -796,6 +836,8 @@ function render(){
       setStatus("Erro ao atualizar assinatura");
     }
   };
+
+  carregarMetaInicial();
 
   onSnapshot(
     query(collection(db,"reservas"), orderBy("date","desc")),
