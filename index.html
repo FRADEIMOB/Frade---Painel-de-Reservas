@@ -251,7 +251,10 @@
       <div class="hero-topbar">
         <div class="brand-chip">🏆 PAINEL DE RESERVAS FRADE</div>
         <div class="hero-connection">
-          <button class="btn-secondary" onclick="ativarModoTV()">TV</button>
+  <input id="urlBase" placeholder="Cole a URL da base aqui..." />
+  <button class="btn-primary" onclick="conectarBase()">Conectar</button>
+  <button class="btn-secondary" onclick="ativarModoTV()">TV</button>
+</div>
         </div>
       </div>
 
@@ -434,6 +437,21 @@ function esc(v){
   return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 function setStatus(msg){ document.getElementById('syncStatus').textContent = msg; }
+  function conectarBase(){
+  const url = document.getElementById('urlBase').value.trim();
+
+  if(!url){
+    setStatus("Informe uma URL válida");
+    return;
+  }
+
+  try{
+    localStorage.setItem('BASE_URL_FRADE', url);
+    setStatus("Base conectada com sucesso");
+  }catch(e){
+    setStatus("Erro ao salvar URL");
+  }
+}
 function salvarLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(reservas)); }
 function normalizar(v){ return (v || '').toString().trim().toLowerCase(); }
 function moeda(v){ return Number(v || 0).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
@@ -703,6 +721,13 @@ function render(){
 
 (function init(){
   preencherFormHoje();
+
+  const urlSalva = localStorage.getItem('BASE_URL_FRADE');
+  if(urlSalva){
+    const campo = document.getElementById('urlBase');
+    if(campo) campo.value = urlSalva;
+  }
+
   render();
 })();
 </script>
