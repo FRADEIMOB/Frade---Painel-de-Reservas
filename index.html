@@ -843,6 +843,23 @@ function render(){
   preencherSelects();
   render();
 })();
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0vkONyYw0a78Gt-2463Utm6aMhWXjtaI",
+    authDomain: "frade-painel-de-reservas.firebaseapp.com",
+    projectId: "frade-painel-de-reservas",
+    storageBucket: "frade-painel-de-reservas.appspot.com",
+    messagingSenderId: "668249968325",
+    appId: "1:668249968325:web:a722297f029fd78f92aac"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
 </script>
 </body>
 </html>
