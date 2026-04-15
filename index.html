@@ -53,7 +53,12 @@
     }
     .hero-wrap,.wrap{max-width:1240px;margin:0 auto;position:relative;z-index:1}
     .hero-topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:18px;
+      flex-wrap:wrap;
+      margin-bottom:18px
     }
     .topbar-left{
       display:flex;align-items:center;gap:10px;flex-wrap:wrap
@@ -64,28 +69,42 @@
       color:#fff;font-weight:900;font-size:15px;box-shadow:0 8px 22px rgba(0,0,0,.18)
     }
     .brand-chip{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
-      background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);font-size:13px;letter-spacing:.08em
+      display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
+      background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.16);font-size:13px;letter-spacing:.08em;
+      box-shadow:0 10px 26px rgba(0,0,0,.10)
     }
     .hero-connection{
-      display:flex;gap:8px;align-items:center;flex-wrap:wrap;
-      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-      border-radius:16px;padding:8px 10px;backdrop-filter:blur(8px)
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      width:100%;
+      max-width:370px;
+      background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      padding:10px;
+      backdrop-filter:blur(8px);
+      margin-left:auto;
+      box-shadow:0 16px 36px rgba(0,0,0,.10)
     }
     .hero-connection input{
-      min-width:260px;
+      flex:1 1 100%;
+      min-width:0;
       padding:10px 12px;
-      background:rgba(255,255,255,.96);color:var(--text)
+      background:rgba(255,255,255,.96);
+      color:var(--text)
     }
     .hero-connection button{
       padding:10px 12px;
       border-radius:14px;
     }
-    h1{margin:12px 0 0;font-size:44px;line-height:1.05}
+    h1{margin:8px 0 0;font-size:44px;line-height:1.05}
     .hero-grid{
-      display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start;margin-top:18px
+      display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);gap:18px;align-items:end;margin-top:12px
     }
-    .hero-left{max-width:760px}
+    .hero-left{max-width:760px;padding-top:4px}
     .hero-right{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:12px}
     .mini{
       padding:16px;border-radius:18px;background:rgba(255,255,255,.10);
@@ -228,11 +247,11 @@
 
     @media (max-width:1180px){
       .grid-stats{grid-template-columns:repeat(2,1fr)}
-      .hero-grid,.body-grid,.two-col,.top-ranking-grid{grid-template-columns:1fr}
+      .hero-topbar,.hero-grid,.body-grid,.two-col,.top-ranking-grid{grid-template-columns:1fr}
       .hero-right{grid-template-columns:repeat(4,1fr)}
       .filters,.form-grid{grid-template-columns:1fr}
       .span-2{grid-column:auto}
-      .hero-connection input{min-width:220px}
+      .hero-connection{max-width:100%;margin-left:0}
       h1{font-size:36px}
     }
     @media (max-width:760px){
@@ -251,10 +270,9 @@
       <div class="hero-topbar">
         <div class="brand-chip">🏆 PAINEL DE RESERVAS FRADE</div>
         <div class="hero-connection">
-  <input id="urlBase" placeholder="Cole a URL da base aqui..." />
-  <button class="btn-primary" onclick="conectarBase()">Conectar</button>
-  <button class="btn-secondary" onclick="ativarModoTV()">TV</button>
-</div>
+          <input id="urlBase" placeholder="Cole a URL da base aqui..." />
+          <button class="btn-primary" onclick="conectarBase()">Conectar</button>
+          <button class="btn-secondary" onclick="ativarModoTV()">TV</button>
         </div>
       </div>
 
@@ -437,7 +455,7 @@ function esc(v){
   return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 function setStatus(msg){ document.getElementById('syncStatus').textContent = msg; }
-  function conectarBase(){
+function conectarBase(){
   const url = document.getElementById('urlBase').value.trim();
 
   if(!url){
